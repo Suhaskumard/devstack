@@ -25,9 +25,6 @@ The stack is a React + Vite frontend and a FastAPI backend that integrates GitHu
 - [How Data Flows](#how-data-flows)
 - [Scripts](#scripts)
 - [Troubleshooting](#troubleshooting)
-- [Known Limitations](#known-limitations)
-- [Roadmap Ideas](#roadmap-ideas)
-
 ---
 
 ## What It Does
