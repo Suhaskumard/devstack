@@ -4,7 +4,7 @@
 
 DevStack analyzes your GitHub profile, understands your coding languages, highlights your best projects, and uses AI to generate an elegant, polished portfolio website in seconds.
 
-## ✨ Features
+## ✨ Features 
 
 - **Automated Data Fetch**: Instantly pulls repositories, languages, and stars directly from your GitHub profile.
 - **AI Insights**: Uses OpenAI to analyze your tech stack and give personalized strengths and growth recommendations.
