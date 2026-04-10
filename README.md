@@ -1,124 +1,388 @@
-# DevStack 🚀
+# DevStack
 
-**An AI-Powered Developer Portfolio Generator**
+DevStack is an AI-powered developer portfolio generator that turns a GitHub username (and optionally a resume PDF) into:
 
-DevStack analyzes your GitHub profile, understands your coding languages, highlights your best projects, and uses AI to generate an elegant, polished portfolio website in seconds.
+- a metrics dashboard,
+- personalized AI insights,
+- and a polished portfolio page with highlighted projects.
 
-## ✨ Features 
+The stack is a React + Vite frontend and a FastAPI backend that integrates GitHub and OpenAI.
 
-- **Automated Data Fetch**: Instantly pulls repositories, languages, and stars directly from your GitHub profile.
-- **AI Insights**: Uses OpenAI to analyze your tech stack and give personalized strengths and growth recommendations.
-- **Auto-Generated Bio**: AI writes a clean, professional summary of your expertise.
-- **Beautiful Output**: A visually stunning, dark-mode, glassmorphic portfolio highlighting your top projects.
+---
 
-## 🛠️ Tech Stack
+## Table of Contents
 
-**Frontend**:
-- React.js
-- Vite
-- Tailwind CSS
-- React Router (for navigation)
-- Lucide React (for icons)
+- [What It Does](#what-it-does)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Run the App](#run-the-app)
+- [API Reference](#api-reference)
+- [Frontend Route Map](#frontend-route-map)
+- [How Data Flows](#how-data-flows)
+- [Scripts](#scripts)
+- [Troubleshooting](#troubleshooting)
+- [Known Limitations](#known-limitations)
+- [Roadmap Ideas](#roadmap-ideas)
 
-**Backend**:
-- FastAPI (Python)
+---
+
+## What It Does
+
+1. Accepts a GitHub username and optional resume PDF.
+2. Fetches profile + repository data from GitHub.
+3. Computes aggregate language usage and star totals.
+4. Generates:
+   - AI strengths, growth areas, and suggestions.
+   - Portfolio bio + skill summary.
+   - Top highlighted projects by stars.
+5. Renders all of the above in a modern UI.
+
+---
+
+## Architecture
+
+### Frontend (`frontend/`)
+
+- Single-page app built with React and Vite.
+- Uses React Router for route-driven workflow.
+- Calls backend via Axios (`http://localhost:8000/api`).
+- Stores fetched GitHub payload in `localStorage` (`devstack_github_data`) to drive subsequent pages.
+
+### Backend (`backend/`)
+
+- FastAPI app with CORS enabled for local development.
+- Exposes endpoints for:
+  - GitHub data fetch,
+  - AI suggestions,
+  - Portfolio content generation,
+  - Resume PDF text parsing.
+- Uses Pydantic models for request/response validation.
+- Uses OpenAI client when `OPENAI_API_KEY` is present; otherwise returns sensible mock AI responses so app remains usable.
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- React 18
+- Vite 5
+- Tailwind CSS 3
+- React Router DOM 6
+- Axios
+- Lucide React
+- Recharts
+- Framer Motion
+
+### Backend
+
+- Python
+- FastAPI
 - Uvicorn
-- OpenAI API
-- GitHub REST API
+- Requests
+- OpenAI SDK
+- Pydantic
+- python-dotenv
+- pypdf
 
 ---
 
-## 🏗️ Folder Structure
+## Project Structure
 
-```
+```text
 devstack/
-│
-├── frontend/             # React application powered by Vite
+├── frontend/
 │   ├── src/
-│   │   ├── components/   # Reusable UI elements (Navbar, etc)
-│   │   ├── pages/        # Main route views (Landing, Dashboard, Portfolio...)
-│   │   ├── services/     # Axios API configuration
-│   │   ├── App.jsx       # Routing wrapper
-│   │   └── main.jsx      # React entrypoint
-│   ├── index.html
-│   ├── package.json
-│   └── tailwind.config.js
-│
-└── backend/              # FastAPI application
-    ├── app/
-    │   ├── routes/       # API endpoints (github_fetch, ai_insights)
-    │   ├── services/     # Services handling HTTP requests to external APIs
-    │   ├── utils/        # Pydantic data models
-    │   └── main.py       # FastAPI application entrypoint
-    ├── requirements.txt
-    └── .env.example
+│   │   ├── components/
+│   │   ├── pages/
+│   │   │   ├── LandingPage.jsx
+│   │   │   ├── GithubInputPage.jsx
+│   │   │   ├── DashboardPage.jsx
+│   │   │   ├── AiInsightsPage.jsx
+│   │   │   ├── PortfolioPage.jsx
+│   │   │   └── AboutPage.jsx
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── package.json
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── routes/
+│   │   │   └── api.py
+│   │   ├── services/
+│   │   │   ├── github_service.py
+│   │   │   └── ai_service.py
+│   │   └── utils/
+│   │       └── models.py
+│   ├── requirements.txt
+│   └── .env.example
+└── README.md
 ```
 
 ---
 
-## 🚀 Setup & Installation
+## Requirements
 
-### 1. Backend Setup (FastAPI)
+- Node.js 18+ and npm
+- Python 3.9+ (3.8 may work, but 3.9+ recommended)
+- Internet access (for GitHub API and OpenAI API when key is configured)
 
-Requires Python 3.8+
+---
+
+## Quick Start
+
+### 1) Clone and enter project
+
+```bash
+git clone <your-repo-url>
+cd devstack
+```
+
+### 2) Backend setup
 
 ```bash
 cd backend
-
-# Create a virtual environment
 python -m venv venv
-
-# Activate it (Windows)
-.\venv\Scripts\activate
-# Activate it (Mac/Linux)
-# source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure Environment Variables
-# Rename .env.example to .env and add your OpenAI Key
-# OPENAI_API_KEY=your_key_here
 ```
 
-### 2. Frontend Setup (React + Vite)
+Activate the environment:
 
-Requires Node.js 18+
+- Windows (PowerShell):
+  ```powershell
+  .\venv\Scripts\Activate.ps1
+  ```
+- macOS/Linux:
+  ```bash
+  source venv/bin/activate
+  ```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create `.env` from `.env.example` and set your key:
+
+```env
+OPENAI_API_KEY="your_openai_key_here"
+```
+
+### 3) Frontend setup
+
+Open a second terminal:
 
 ```bash
 cd frontend
-
-# Install packages
 npm install
 ```
 
 ---
 
-## 🏃‍♂️ How to Run
+## Environment Variables
 
-1. **Start the Backend server:**
-   ```bash
-   cd backend
-   # Make sure venv is active
-   uvicorn app.main:app --reload --port 8000
-   ```
-   The API will run at `http://localhost:8000/api`
+The backend reads variables from `backend/.env`.
 
-2. **Start the Frontend server:**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   The UI will run at `http://localhost:5173`
-
-Open your browser to the Frontend URL to explore DevStack!
+| Variable | Required | Description |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | No | Enables live OpenAI-generated suggestions and portfolio content. If omitted, backend falls back to mock AI output. |
 
 ---
 
-## 🔮 Future Improvements
+## Run the App
 
-- Incorporate LinkedIn or resume PDF parsing alongside GitHub.
-- Detailed visual charts for language distribution over time.
-- Direct portfolio hosting/export functionality (e.g. Export to Vercel/Netlify).
-- Add robust caching (Redis) so repeated identical GitHub queries don't trigger OpenAI repeatedly and save API costs.
+### Start backend
+
+From `backend/` with venv activated:
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+Backend URLs:
+
+- API base: `http://localhost:8000/api`
+- Root health-style message: `http://localhost:8000/`
+- Interactive docs: `http://localhost:8000/docs`
+
+### Start frontend
+
+From `frontend/`:
+
+```bash
+npm run dev
+```
+
+Frontend URL:
+
+- `http://localhost:5173`
+
+---
+
+## API Reference
+
+Base URL: `http://localhost:8000/api`
+
+### `POST /github/fetch`
+
+Fetches GitHub profile/repo metadata and aggregates.
+
+Request:
+
+```json
+{
+  "username": "octocat"
+}
+```
+
+Response includes:
+
+- `user`: GitHub profile summary
+- `repos`: non-fork repos (up to 100 fetched/sorted by pushed date)
+- `languages`: language => repo count
+- `language_timeline`: year-wise language usage map
+- `total_stars`: sum of stars across included repos
+
+### `POST /ai/suggestions`
+
+Generates AI insights from portfolio data.
+
+Request shape:
+
+- `user`
+- `repos`
+- `languages`
+- optional `resume_text`
+
+Response:
+
+```json
+{
+  "strengths": ["..."],
+  "growth_areas": ["..."],
+  "suggestions": ["..."],
+  "visualization_ideas": ["..."]
+}
+```
+
+### `POST /portfolio/generate`
+
+Generates portfolio copy and top highlighted projects.
+
+Request shape:
+
+- `user`
+- `repos`
+- `languages`
+- optional `resume_text`
+
+Response:
+
+```json
+{
+  "bio": "...",
+  "skill_summary": "...",
+  "highlighted_projects": [
+    {
+      "name": "...",
+      "description": "...",
+      "language": "...",
+      "stargazers_count": 0,
+      "html_url": "...",
+      "fork": false
+    }
+  ]
+}
+```
+
+### `POST /resume/parse`
+
+Parses uploaded PDF and returns extracted text.
+
+- Content type: `multipart/form-data`
+- Field name: `file`
+- Constraint: file must end with `.pdf`
+
+Response:
+
+```json
+{
+  "text": "parsed resume text..."
+}
+```
+
+---
+
+## Frontend Route Map
+
+| Route | Page | Purpose |
+| --- | --- | --- |
+| `/` | Landing | Product intro and CTA |
+| `/input` | GitHub Input | Username input + optional resume upload |
+| `/dashboard` | Dashboard | Profile stats + language overview |
+| `/insights` | AI Insights | Strengths, growth areas, recommendations |
+| `/portfolio` | Portfolio | Final generated portfolio page |
+| `/about` | About | Product and stack description |
+
+---
+
+## How Data Flows
+
+1. User submits GitHub username (and optional PDF) on `/input`.
+2. Frontend calls:
+   - `/resume/parse` (if file uploaded),
+   - `/github/fetch`.
+3. Combined payload is stored in `localStorage`.
+4. `/dashboard` reads and visualizes base data.
+5. `/insights` sends stored data to `/ai/suggestions`.
+6. `/portfolio` sends stored data to `/portfolio/generate`.
+7. Generated text + top repos are rendered as portfolio output.
+
+---
+
+## Scripts
+
+### Frontend (`frontend/package.json`)
+
+- `npm run dev` - Start Vite dev server
+- `npm run build` - Production build
+- `npm run preview` - Preview built app
+- `npm run lint` - Run ESLint
+
+### Backend
+
+No custom script aliases are defined. Run via Uvicorn directly:
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+---
+
+## Troubleshooting
+
+- **Backend starts, frontend fails API calls**
+  - Confirm backend is running on port `8000`.
+  - Confirm frontend uses `http://localhost:8000/api` in `frontend/src/services/api.js`.
+
+- **AI endpoints return fallback-like or generic content**
+  - Check `OPENAI_API_KEY` in `backend/.env`.
+  - Restart backend after editing `.env`.
+
+- **Resume upload fails**
+  - Ensure file extension is `.pdf`.
+  - Try a text-based PDF (image-only scans may extract poorly).
+
+- **GitHub fetch fails**
+  - Verify username exists and is public.
+  - Check network connectivity and GitHub API availability.
+
+- **CORS or mixed-origin issues in non-local deploy**
+  - Replace permissive CORS (`allow_origins=["*"]`) with explicit frontend domains in production.
 
